@@ -51,6 +51,8 @@ def init_modversion():
         
         m = Modversion(mod=mod,version=version,updatetime=nt,endtime=None,nexttime=None, status=0, 
                 valid=True,interval=60,value=value,count=3,max=0.8,fixtime=fixedtime,related=related,comment='')
+        
+        db_session.add(m)
 #add sql data
 order1 = Orderevents(stock='600123',price=6.8,volume=100)
 order2 = Orderevents(stock='600124',price=9.8,volume=200)
