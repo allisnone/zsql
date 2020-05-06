@@ -79,7 +79,7 @@ def init_modversion(db_session):
 #modversion
 init_modversion(db_session)
       
-class Handling_modversion(Object):
+class Handling_modversion:
     def __init__(self,db_session):
         self.db_session = db_session
         
@@ -109,11 +109,11 @@ dt_time_str = dt.strftime('%Y%m%d%H%M%S')
 stock='600123'
 direction=0
 orderuuid = dt_time_str + stock + '%s'%direction
-order1 = Orderevents(orderuuid=orderuuid,direction=0,ordertype=0,stock=stock,price=6.8,volume=100)  #buy
+order1 = Orderevents(uuid=orderuuid,direction=0,ordertype=0,stock=stock,price=6.8,volume=100)  #buy
 stock='600124'
 direction=1
 orderuuid = dt_time_str + stock + '%s'%direction
-order2 = Orderevents(orderuuid=orderuuid,direction=direction,ordertype=0,stock=stock,price=9.8,volume=200) #sell
+order2 = Orderevents(uuid=orderuuid,direction=direction,ordertype=0,stock=stock,price=9.8,volume=200) #sell
 try:
     db_session.add(order1)
     db_session.add(order2)
@@ -126,9 +126,9 @@ except Exception as e:
 #histstrategy33
 
 stock='300712'
-s33_1 = Histstrategy33(updatetime=dt,stock='300712',stockuuid=dt_str+stock,exit=4.08,buy=4.22,stop=4.76,trying=3.56)
+s33_1 = Histstrategy33(updatetime=dt,stock='300712',uuid=dt_str+stock,exit=4.08,buy=4.22,stop=4.76,trying=3.56)
 stock='600237'
-s33_2 = Histstrategy33(updatetime=dt,stock='300712',stockuuid=dt_str+stock,exit=3.50,buy=3.82,stop=4.25,trying=3.59)
+s33_2 = Histstrategy33(updatetime=dt,stock='300712',uuid=dt_str+stock,exit=3.50,buy=3.82,stop=4.25,trying=3.59)
 try:
     db_session.add(s33_1)
     db_session.add(s33_2)

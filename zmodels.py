@@ -33,7 +33,7 @@ class Orderevents(Base):
     """use for strategory ordering and trading"""
     __tablename__ = 'orderevents'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    orderuuid = Column(String(32),unique=True)  ## updatetime + stock
+    uuid = Column(String(32),unique=True)  ## updatetime + stock
     #orderevent = Column(String(32))#,index=True)
     direction = Column(Integer,default=0) #0-buy, 1-sell
     ordertype = Column(Integer,default=0) #0-limit price
@@ -63,7 +63,7 @@ class Histfund(Base):
     capital = Column(Float, nullable=False)
     cash = Column(Float, default=0)
     position = Column(Float, default=None)
-    updatetime = Column(DateTime, unique=True,default=datetime.datetime.now())
+    updatetime = Column(DateTime, default=datetime.datetime.now())
     """
     def __repr__(self):
         return "<Histfund(account='%s', updatetime='%s', market='%s', capital='%s', cash='%s', position='%s')>" % (self.account, self.updatetime, self.market, self.capital,self.cash,self.position)
@@ -74,7 +74,7 @@ class Histstrategy33(Base):
     __tablename__ = 'histstrategy33'
     id = Column(Integer, primary_key=True, autoincrement=True)
     #updatetime = Column(DateTime, default=datetime.datetime.now().date())
-    stockuuid = Column(String(16),unique=True)  # updatetime + stock
+    uuid = Column(String(16),unique=True)  # updatetime + stock
     stock = Column(String(6),nullable=False)
     exit = Column(Float, nullable=False)
     buy = Column(Float, nullable=False)
