@@ -77,53 +77,29 @@ def init_modversion(db_session):
         print(e)
     return
 #modversion
-#init_modversion(db_session)
+init_modversion(db_session)
       
-class Handling_model:
-    def __init__(self,db_session,logger=None):
+class Handling_modversion(Object):
+    def __init__(self,db_session):
         self.db_session = db_session
-        self.logger = logger
         
-    def add(self,obj):
+    def add(self,mod_obj):
         try:
-            if isinstance(obj, list):
-                self.db_session.add_all(obj)
+            if isinstance(mod_obj, list):
+                self.db_session.add_all(mod_obj)
             else:
-                self.db_session.add(obj)
+                self.db_session.add(mod_obj)
             self.db_session.commit()
         except Exception as e:
             self.db_session.rollback()
-            if self.logger: self.logger.info(e)
+            print(e)
     
-    def update_modversion_by_mod(self,mod,datas={}):
+    def update(self,m_class,condition,datas={}):
         try:
-            filter = self.db_session.query(Modversion).filter(Modversion.mod==mod)
-            #print(this_mod.first().version)
-            datas['version'] = filter.first().version + 1
-            filter.update(datas)
-            self.db_session.commit()
+            self.db_session.query(Orderevents).filter(Orderevents.id==2).update({"volume":400,'valid':False})
         except Exception as e:
             self.db_session.rollback()
-            if self.logger: self.logger.info(e)
-    
-    def is_mod_update(self,mod,baseline):
-        try:
-            filter = self.db_session.query(Modversion).filter(Modversion.mod==mod).first()
-            return filter.updatetime>=baseline
-        except Exception as e:
-            if self.logger: self.logger.info(e)
-        return
-
-
-hm = Handling_model(db_session)
-#updatae modversion data
-#hm.update_modversion_by_mod('kdata', datas={'status':0})
-
-#is mod update
-dt = datetime.datetime.now()
-dt = datetime.datetime.strptime('20200505141300','%Y%m%d%H%M%S')
-is_update = hm.is_mod_update(mod='kdata', baseline=dt)
-print(is_update)
+            print(e)
 
 #orderevent  
 #add sql data
@@ -134,3 +110,86 @@ stock='600123'
 direction=0
 orderuuid = dt_time_str + stock + '%s'%direction
 order1 = Orderevents(orderuuid=orderuuid,direction=0,ordertype=0,stock=stock,price=6.8,volume=100)  #buy
+stock='600124'
+direction=1
+orderuuid = dt_time_str + stock + '%s'%direction
+order2 = Orderevents(orderuuid=orderuuid,direction=direction,ordertype=0,stock=stock,price=9.8,volume=200) #sell
+try:
+    db_session.add(order1)
+    db_session.add(order2)
+    db_session.commit()
+except Exception as e:
+    db_session.rollback()
+    print(e)
+
+
+#histstrategy33
+
+stock='300712'
+s33_1 = Histstrategy33(updatetime=dt,stock='300712',stockuuid=dt_str+stock,exit=4.08,buy=4.22,stop=4.76,trying=3.56)
+stock='600237'
+s33_2 = Histstrategy33(updatetime=dt,stock='300712',stockuuid=dt_str+stock,exit=3.50,buy=3.82,stop=4.25,trying=3.59)
+try:
+    db_session.add(s33_1)
+    db_session.add(s33_2)
+    db_session.commit()
+except Exception as e:
+    db_session.rollback()
+    print(e)
+
+#histstrategy33
+dt_str1 = '20200428'
+account = 'abc01'
+dt = datetime.datetime.strptime('20200428','%Y%m%d')
+fund_1 = Histfund(uuid=dt_str1+account,account=account,updatetime=dt,market=8000.0,capital=10000.0)
+account = 'abc02'
+fund_2 = Histfund(uuid=dt_str+account,account=account,market=16000.0,capital=20000.0)
+try:
+    db_session.add(fund_1)
+    db_session.add(fund_2)
+    
+    db_session.commit()
+except Exception as e:
+    db_session.rollback()
+    print(e)
+#update sql data
+event = db_session.query(Orderevents).filter(Orderevents.id > 2).first()
+res = db_session.query(Orderevents).filter(Orderevents.id==1).update({"status":1})
+#print(event.id, event.stock,event.volume)
+res = db_session.query(Orderevents).filter(Orderevents.id==2).update({"volume":400,'valid':False})
+print(res) # 1 res就是我们当前这句更新语句所更新的行数
+
+db_session.commit()
+
+#filter and query
+event_all_list = db_session.query(Orderevents).filter(Orderevents.id >= 2).all()
+print(event_all_list)
+for i in event_all_list:
+    print(i.id, i.stock)
+
+event = db_session.query(Orderevents).filter(Orderevents.id >= 3).first()
+#print(event.id, event.stock)
+
+#delete:
+db_session.query(Orderevents).filter(Orderevents.id == 1001).delete()
+
+#order:
+std_ord_desc = db_session.query(Orderevents).filter(Orderevents.stock.like("%600%")).order_by(Orderevents.stock.desc()).all()
+for i in std_ord_desc:
+  print(i.id)
+
+
+#bool
+event = db_session.query(Orderevents).filter(Orderevents.valid == False).first()
+print(event.id, event.stock)
+
+#datetime
+filter_time = datetime.datetime.strptime('20200505113720','%Y%m%d%H%M%S')
+event = db_session.query(Orderevents).filter(Orderevents.updatetime >= filter_time).all()
+print(event)
+event = db_session.query(Orderevents).filter(Orderevents.updatetime >= filter_time).first()
+print(event.id, event.stock,event.updatetime)
+
+db_session.close()
+
+

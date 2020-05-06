@@ -84,7 +84,7 @@ class Histstrategy33(Base):
     tday = Column(Integer,default=1)
     ttarget = Column(Float, default=100.0)
     success = Column(Boolean,default=False)
-    updatetime = Column(String(8), default=datetime.datetime.now())
+    updatetime = Column(DateTime, default=datetime.datetime.now())
     """"
     #sqlite not support
     __table_args__ = (
