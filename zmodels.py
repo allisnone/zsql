@@ -4,7 +4,7 @@
 import datetime
 from sqlalchemy import create_engine 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column,Integer,String,Boolean,Float,DateTime
+from sqlalchemy import Column,Integer,String,Boolean,Float,DateTime,PrimaryKeyConstraint
 
 
 Base = declarative_base()
@@ -38,6 +38,7 @@ class Orderevents(Base):
     direction = Column(Integer,default=0) #0-buy, 1-sell
     ordertype = Column(Integer,default=0) #0-limit price
     stock = Column(String(6))
+    orderuuid = Column(String(32),unique=True)  ## updatetime + stock
     price = Column(Float)
     volume = Column(Integer)
     valid = Column(Boolean,default=True) #1-valid, 0-invalid
@@ -56,19 +57,26 @@ class Histfund(Base):
     """use for recording position and fund"""
     __tablename__ = 'histfund'
     id = Column(Integer, primary_key=True, autoincrement=True)
+    uuid = Column(String(32),unique=True)  # updatetime + account
     account = Column(String(32),default='abc123')
-    updatetime = Column(DateTime, default=datetime.datetime.now())
+    updatetime = Column(DateTime, unique=True,default=datetime.date.today())
     market = Column(Float, nullable=False)
     capital = Column(Float, nullable=False)
     cash = Column(Float, default=0)
     position = Column(Float, default=None)
+    """
+    def __repr__(self):
+        return "<Histfund(account='%s', updatetime='%s', market='%s', capital='%s', cash='%s', position='%s')>" % (self.account, self.updatetime, self.market, self.capital,self.cash,self.position)
+    """
 
 class Histstrategy33(Base):
     """use for recording Histstrategy33"""
     __tablename__ = 'histstrategy33'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    updatetime = Column(DateTime, default=datetime.datetime.now())
-    stock = Column(String(6))
+    #updatetime = Column(DateTime, default=datetime.datetime.now().date())
+    updatetime = Column(String(8), default=datetime.datetime.now().strftime('%Y%m%d'))
+    stock = Column(String(6),nullable=False)
+    stockuuid = Column(String(16),unique=True)  # updatetime + stock
     exit = Column(Float, nullable=False)
     buy = Column(Float, nullable=False)
     stop = Column(Float, default=-1) #stop profit, sell in high price, sell then buy in 0-3 dates;-1-disable
@@ -77,7 +85,13 @@ class Histstrategy33(Base):
     tday = Column(Integer,default=1)
     ttarget = Column(Float, default=100.0)
     success = Column(Boolean,default=False)
-     
+    """"
+    #sqlite not support
+    __table_args__ = (
+        PrimaryKeyConstraint('updatetime', 'stock'),
+        {},
+    )
+    """
 sqlite_db = 'trader.db'
 engine = create_engine('sqlite:///' + sqlite_db + '?check_same_thread=False', echo=False)
 Base.metadata.create_all(engine)

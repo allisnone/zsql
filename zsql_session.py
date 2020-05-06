@@ -70,40 +70,67 @@ def init_modversion(db_session):
         m = Modversion(mod=mod,version=version,updatetime=nt,endtime=None,nexttime=None, status=0, 
                 valid=True,interval=60,value=value,count=3,max=0.8,fixtime=fixedtime,related=related,comment='')
         db_session.add(m)
-    db_session.commit()
+    try:
+        db_session.commit()
+    except Exception as e:
+        db_session.rollback()
+        print(e)
     return
 #modversion
-#init_modversion(db_session)      
+init_modversion(db_session)      
 
 #orderevent  
 #add sql data
-order1 = Orderevents(direction=0,ordertype=0,stock='600123',price=6.8,volume=100)  #buy
-order2 = Orderevents(direction=1,ordertype=0,stock='600124',price=9.8,volume=200) #sell
-
-db_session.add(order1)
-db_session.add(order2)
-
+dt = datetime.datetime.now()
+dt_str = dt.strftime('%Y%m%d')
+dt_time_str = dt.strftime('%Y%m%d%H%M%S')
+stock='600123'
+direction=0
+orderuuid = dt_time_str + stock + '%s'%direction
+order1 = Orderevents(orderuuid=orderuuid,direction=0,ordertype=0,stock=stock,price=6.8,volume=100)  #buy
+stock='600124'
+direction=1
+orderuuid = dt_time_str + stock + '%s'%direction
+order2 = Orderevents(orderuuid=orderuuid,direction=direction,ordertype=0,stock=stock,price=9.8,volume=200) #sell
+try:
+    db_session.add(order1)
+    db_session.add(order2)
+    db_session.commit()
+except Exception as e:
+    db_session.rollback()
+    print(e)
 
 
 #histstrategy33
-s33_1 = Histstrategy33(stock='300712',exit=4.08,buy=4.22,stop=4.76,trying=3.56)
-s33_2 = Histstrategy33(stock='600237',exit=3.50,buy=3.82,stop=4.25,trying=3.59)
 
-db_session.add(s33_1)
-db_session.add(s33_2)
+stock='300712'
+s33_1 = Histstrategy33(updatetime=dt,stock='300712',stockuuid=dt_str+stock,exit=4.08,buy=4.22,stop=4.76,trying=3.56)
+stock='600237'
+s33_2 = Histstrategy33(updatetime=dt,stock='300712',stockuuid=dt_str+stock,exit=3.50,buy=3.82,stop=4.25,trying=3.59)
+try:
+    db_session.add(s33_1)
+    db_session.add(s33_2)
+    db_session.commit()
+except Exception as e:
+    db_session.rollback()
+    print(e)
 
 #histstrategy33
-fund_1 = Histfund(market=8000.0,capital=10000.0)
+dt = datetime.datetime.strptime('20200428','%Y%m%d')
+fund_1 = Histfund(updatetime=dt,market=8000.0,capital=10000.0)
 fund_2 = Histfund(market=16000.0,capital=20000.0)
-
-db_session.add(fund_1)
-db_session.add(fund_2)
-
-db_session.commit()
+try:
+    db_session.add(fund_1)
+    db_session.add(fund_2)
+    
+    db_session.commit()
+except Exception as e:
+    db_session.rollback()
+    print(e)
 #update sql data
 event = db_session.query(Orderevents).filter(Orderevents.id > 2).first()
 res = db_session.query(Orderevents).filter(Orderevents.id==1).update({"status":1})
-print(event.id, event.stock,event.volume)
+#print(event.id, event.stock,event.volume)
 res = db_session.query(Orderevents).filter(Orderevents.id==2).update({"volume":400,'valid':False})
 print(res) # 1 res就是我们当前这句更新语句所更新的行数
 
@@ -116,7 +143,7 @@ for i in event_all_list:
     print(i.id, i.stock)
 
 event = db_session.query(Orderevents).filter(Orderevents.id >= 3).first()
-print(event.id, event.stock)
+#print(event.id, event.stock)
 
 #delete:
 db_session.query(Orderevents).filter(Orderevents.id == 1001).delete()
