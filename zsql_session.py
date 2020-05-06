@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 import datetime
-from zmodels import engine,Orderevents,Modversion
+from zmodels import engine,Orderevents,Modversion,Histstrategy33,Histfund
 from sqlalchemy.orm import sessionmaker
 Session = sessionmaker(bind=engine)
 db_session = Session()
@@ -72,18 +72,37 @@ def init_modversion(db_session):
         db_session.add(m)
     db_session.commit()
     return
+#modversion
+#init_modversion(db_session)      
 
-init_modversion(db_session)        
+#orderevent  
 #add sql data
-order1 = Orderevents(stock='600123',price=6.8,volume=100)
-order2 = Orderevents(stock='600124',price=9.8,volume=200)
+order1 = Orderevents(direction=0,ordertype=0,stock='600123',price=6.8,volume=100)  #buy
+order2 = Orderevents(direction=1,ordertype=0,stock='600124',price=9.8,volume=200) #sell
 
-#db_session.add(order1)
-#db_session.add(order2)
+db_session.add(order1)
+db_session.add(order2)
 db_session.commit()
 
+
+#histstrategy33
+s33_1 = Histstrategy33(stock='300712',exit=4.08,buy=4.22,stop=4.76,trying=3.56)
+s33_2 = Histstrategy33(stock='600237',exit=3.50,buy=3.82,stop=4.25,trying=3.59)
+
+db_session.add(s33_1)
+db_session.add(s33_2)
+
+#histstrategy33
+fund_1 = Histfund(market=8000.0,capital=10000.0)
+fund_2 = Histfund(market=16000.0,capital=20000.0)
+
+db_session.add(fund_1)
+db_session.add(fund_2)
+
+
 #update sql data
-event = db_session.query(Orderevents).filter(Orderevents.id >= 2).first()
+event = db_session.query(Orderevents).filter(Orderevents.id > 2).first()
+res = db_session.query(Orderevents).filter(Orderevents.id==3).update({"status":1})
 print(event.id, event.stock,event.volume)
 res = db_session.query(Orderevents).filter(Orderevents.id==2).update({"volume":400,'valid':False})
 print(res) # 1 res就是我们当前这句更新语句所更新的行数

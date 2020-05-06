@@ -42,7 +42,7 @@ class Orderevents(Base):
     volume = Column(Integer)
     valid = Column(Boolean,default=True) #1-valid, 0-invalid
     status = Column(Integer,default=0) #0-trigger, 1-sent order, 2-traded, 3-revised order, 4-canceled, 5-timeout,6-second-day-order
-    strategyid = Column(String(32),default=None)
+    strategyid = Column(String(32),default='033')  #011-t+0, 033-strategy33
     orderid = Column(String(32),default=None)
     tradeid = Column(String(32),default=None)
     starttime = Column(DateTime, default=None)
@@ -56,9 +56,9 @@ class Histfund(Base):
     """use for recording position and fund"""
     __tablename__ = 'histfund'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    account = Column(String(32),default='')
+    account = Column(String(32),default='abc123')
     updatetime = Column(DateTime, default=datetime.datetime.now())
-    market = Column(Float, default=0)
+    market = Column(Float, nullable=False)
     capital = Column(Float, nullable=False)
     cash = Column(Float, default=0)
     position = Column(Float, default=None)
@@ -71,9 +71,11 @@ class Histstrategy33(Base):
     stock = Column(String(6))
     exit = Column(Float, nullable=False)
     buy = Column(Float, nullable=False)
-    stop = Column(Float, default=-1) #stop profit, sell in high price, sell then buy in 0-3 dates
-    trying = Column(Float, default=-1) ##try to buy, buy in low price, buy then sell in 0-n dates
-    status = Column(Integer,default=-1) #0-buy, 1-exit,2-stop,3-trying,-1-holding/unchanged
+    stop = Column(Float, default=-1) #stop profit, sell in high price, sell then buy in 0-3 dates;-1-disable
+    trying = Column(Float, default=-1) ##try to buy, buy in low price, buy then sell in 0-n dates;-1-disable
+    status = Column(Integer,default=-1) #0-buyed, 1-exited,2-stop,3-trying,-1-holding/unchanged
+    tday = Column(Integer,default=1)
+    ttarget = Column(Float, default=100.0)
     success = Column(Boolean,default=False)
      
 sqlite_db = 'test.db'
