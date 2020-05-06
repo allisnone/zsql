@@ -8,30 +8,8 @@ Session = sessionmaker(bind=engine)
 db_session = Session()
 
 nt = datetime.datetime.now()
-mod_version = {'positions':[0,nt,None,None,0,1,60,10000.0,3,0.8,'15:01','002256,600345',''],
-        'fund':[0,nt,None,None,0,1,60,10000.0,None,None,'15:01','',''],
-        'strategy33':[0,nt,None,None,0,1,60,None,3,None,'15:01','',''],
-        'hangqing':[0,nt,None,None,0,1,60,None,3,None,'14:01','',''],
-        'traderapi':[0,nt,None,None,0,1,60,None,3,None,'14:01','',''],
-        'kdata':[0,nt,None,None,0,1,60,None,3,None,'14:01','',''],
-        'backtest':[0,nt,None,None,0,1,60,None,3,None,'14:01','',''],
-        'report':[0,nt,None,None,0,1,60,None,3,None,'14:01','',''],
-        'ipo':[0,nt,None,None,0,1,60,None,10,0.8,'13:10','',''],
-        'tplus':[0,nt,None,None,0,0,60,None,10,0.8,'14:01','002236,300047',''],
-        'daban':[0,nt,None,None,0,0,60,None,10,0.8,'9:25','002236,300047',''],
-        'preorder':[0,nt,None,None,0,1,60,None,10,0.8,'18:00','002236,300047',''],
-        'order':[0,nt,None,None,0,1,60,None,10,0.8,'18:00','002236,300047',''],
-        'trade':[0,nt,None,None,0,0,60,None,10,0.8,'9:25','002236,300047',''],
-        'dapan':[0,nt,None,None,0,0,60,None,10,0.8,'9:25','002236,300047',''],
-        'potential':[0,nt,None,None,0,1,60,None,10,0.8,'14:01','002236,300047','']
-        }
-columns=['version','updatetime','endtime', 'nexttime', 'status', 'valid','interval','value','count','max','fixtime','related','comment']
-
-
 #modversion
 #init_modversion(db_session)
-
-
 
 hm = Handle_modversion(db_session)
 #updatae modversion data
@@ -59,9 +37,9 @@ stra_updated = hm.is_updated(filter='20200506600237',baseline=dt)
 print('stra_updated=',stra_updated)
 
 dt_str1 = '20200428'
-stock='305729'
+stock='306729'
 s33_1 = Histstrategy33(updatetime=dt,stock=stock,uuid=dt_str1+stock,exit=4.08,buy=4.22,stop=4.76,trying=3.56)
-stock='305730'
+stock='306730'
 s33_2 = Histstrategy33(updatetime=dt,stock=stock,uuid=dt_str1+stock,exit=4.08,buy=4.22,stop=4.76,trying=3.56)
 hm.add_and_update_realted_mod(obj=[s33_1,s33_2])
 
@@ -71,18 +49,18 @@ hm.update(filter='20200428abc01', datas={'position':0.6})
 fund_updated = hm.is_updated(filter='20200428abc01',baseline=dt)
 print('fund_updated=',fund_updated)
 
-account = 'abc57'
+account = 'abc67'
 dt = datetime.datetime.strptime('20200428','%Y%m%d')
 fund_1 = Histfund(uuid=dt_str1+account,account=account,updatetime=dt,market=8000.0,capital=10000.0)
-account = 'abc58'
+account = 'abc68'
 fund_2 = Histfund(uuid=dt_str1+account,account=account,updatetime=dt,market=8000.0,capital=10000.0)
 hm.add_and_update_realted_mod([fund_1,fund_2])
 
 hm.set_model(model=Orderevents)
 dt_str1 = '20200428051213'
-stock='305748'
+stock='306748'
 order1 = Orderevents(uuid=dt_str1+stock,direction=0,ordertype=0,stock=stock,price=6.8,volume=100)  #buy
-stock='305749'
+stock='306749'
 order2 = Orderevents(uuid=dt_str1+stock,direction=0,ordertype=0,stock=stock,price=6.8,volume=100) 
 hm.add_and_update_realted_mod([order1,order2])
 
