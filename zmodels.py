@@ -78,7 +78,7 @@ class Histstrategy33(Base):
     ttarget = Column(Float, default=100.0)
     success = Column(Boolean,default=False)
      
-sqlite_db = 'test.db'
+sqlite_db = 'trader.db'
 engine = create_engine('sqlite:///' + sqlite_db + '?check_same_thread=False', echo=False)
 Base.metadata.create_all(engine)
 

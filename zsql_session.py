@@ -82,7 +82,7 @@ order2 = Orderevents(direction=1,ordertype=0,stock='600124',price=9.8,volume=200
 
 db_session.add(order1)
 db_session.add(order2)
-db_session.commit()
+
 
 
 #histstrategy33
@@ -99,10 +99,10 @@ fund_2 = Histfund(market=16000.0,capital=20000.0)
 db_session.add(fund_1)
 db_session.add(fund_2)
 
-
+db_session.commit()
 #update sql data
 event = db_session.query(Orderevents).filter(Orderevents.id > 2).first()
-res = db_session.query(Orderevents).filter(Orderevents.id==3).update({"status":1})
+res = db_session.query(Orderevents).filter(Orderevents.id==1).update({"status":1})
 print(event.id, event.stock,event.volume)
 res = db_session.query(Orderevents).filter(Orderevents.id==2).update({"volume":400,'valid':False})
 print(res) # 1 res就是我们当前这句更新语句所更新的行数
