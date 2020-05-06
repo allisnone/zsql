@@ -14,9 +14,6 @@ class Modversion(Base):
     #id = Column(Integer, primary_key=True, autoincrement=True)
     mod = Column(String(32),unique=True,primary_key=True)
     version = Column(Integer,default=1)
-    updatetime = Column(DateTime, default=datetime.datetime.utcnow)
-    endtime = Column(DateTime, default=None)
-    nexttime = Column(DateTime, default=None) #next update time
     status = Column(Integer,default=0)
     valid = Column(Boolean,default=True) #1-valid, 0-invalid
     interval = Column(Integer,default=86400)  #update every interval, default one day
@@ -25,6 +22,9 @@ class Modversion(Base):
     max = Column(Float,default=0.8)  #if position, the max position rate
     fixtime =  Column(String(10), default=None) #fixed time to update data every date
     related = Column(String(256),default='') #related stocks 
+    updatetime = Column(DateTime, default=datetime.datetime.now())
+    endtime = Column(DateTime, default=None)
+    nexttime = Column(DateTime, default=None) #next update time
     comment = Column(String(32),default='')
     #columns=['starttime','endtime', 'nexttime', 'status', 'valid','interval','value','count','max','update_time','comment']
     
@@ -33,12 +33,11 @@ class Orderevents(Base):
     """use for strategory ordering and trading"""
     __tablename__ = 'orderevents'
     id = Column(Integer, primary_key=True, autoincrement=True)
+    orderuuid = Column(String(32),unique=True)  ## updatetime + stock
     #orderevent = Column(String(32))#,index=True)
-    updatetime = Column(DateTime, default=datetime.datetime.now()) #datetime.datetime.utcnow()
     direction = Column(Integer,default=0) #0-buy, 1-sell
     ordertype = Column(Integer,default=0) #0-limit price
     stock = Column(String(6))
-    orderuuid = Column(String(32),unique=True)  ## updatetime + stock
     price = Column(Float)
     volume = Column(Integer)
     valid = Column(Boolean,default=True) #1-valid, 0-invalid
@@ -47,10 +46,11 @@ class Orderevents(Base):
     orderid = Column(String(32),default=None)
     tradeid = Column(String(32),default=None)
     starttime = Column(DateTime, default=None)
-    endtime = Column(DateTime,default=datetime.datetime.strptime(datetime.datetime.now().strftime('%Y%m%d')+'145959','%Y%m%d%H%M%S'))
     delay = Column(Integer,default=300)
     interval = Column(Integer,default=60)
     count = Column(Integer,default=5)
+    endtime = Column(DateTime,default=datetime.datetime.strptime(datetime.datetime.now().strftime('%Y%m%d')+'145959','%Y%m%d%H%M%S'))
+    updatetime = Column(DateTime, default=datetime.datetime.now()) #datetime.datetime.utcnow()
     comment = Column(String(32),default='')
 
 class Histfund(Base):
@@ -59,11 +59,11 @@ class Histfund(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     uuid = Column(String(32),unique=True)  # updatetime + account
     account = Column(String(32),default='abc123')
-    updatetime = Column(DateTime, unique=True,default=datetime.date.today())
     market = Column(Float, nullable=False)
     capital = Column(Float, nullable=False)
     cash = Column(Float, default=0)
     position = Column(Float, default=None)
+    updatetime = Column(DateTime, unique=True,default=datetime.datetime.now())
     """
     def __repr__(self):
         return "<Histfund(account='%s', updatetime='%s', market='%s', capital='%s', cash='%s', position='%s')>" % (self.account, self.updatetime, self.market, self.capital,self.cash,self.position)
@@ -74,9 +74,8 @@ class Histstrategy33(Base):
     __tablename__ = 'histstrategy33'
     id = Column(Integer, primary_key=True, autoincrement=True)
     #updatetime = Column(DateTime, default=datetime.datetime.now().date())
-    updatetime = Column(String(8), default=datetime.datetime.now().strftime('%Y%m%d'))
-    stock = Column(String(6),nullable=False)
     stockuuid = Column(String(16),unique=True)  # updatetime + stock
+    stock = Column(String(6),nullable=False)
     exit = Column(Float, nullable=False)
     buy = Column(Float, nullable=False)
     stop = Column(Float, default=-1) #stop profit, sell in high price, sell then buy in 0-3 dates;-1-disable
@@ -85,6 +84,7 @@ class Histstrategy33(Base):
     tday = Column(Integer,default=1)
     ttarget = Column(Float, default=100.0)
     success = Column(Boolean,default=False)
+    updatetime = Column(String(8), default=datetime.datetime.now())
     """"
     #sqlite not support
     __table_args__ = (

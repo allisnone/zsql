@@ -116,9 +116,12 @@ except Exception as e:
     print(e)
 
 #histstrategy33
+dt_str1 = '20200428'
+account = 'abc01'
 dt = datetime.datetime.strptime('20200428','%Y%m%d')
-fund_1 = Histfund(updatetime=dt,market=8000.0,capital=10000.0)
-fund_2 = Histfund(market=16000.0,capital=20000.0)
+fund_1 = Histfund(uuid=dt_str1+account,account=account,updatetime=dt,market=8000.0,capital=10000.0)
+account = 'abc02'
+fund_2 = Histfund(uuid=dt_str+account,account=account,market=16000.0,capital=20000.0)
 try:
     db_session.add(fund_1)
     db_session.add(fund_2)
