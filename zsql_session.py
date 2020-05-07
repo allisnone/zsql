@@ -26,10 +26,8 @@ print(is_update)
 dt_str = dt.strftime('%Y%m%d')
 dt_time_str = dt.strftime('%Y%m%d%H%M%S')
 stock='600123'
-direction=0
-orderuuid = dt_time_str + stock + '%s'%direction
-order1 = Orderevents(uuid=orderuuid,direction=0,ordertype=0,stock=stock,price=6.8,volume=100)  #buy
 
+#------------------------------------------------------Histstrategy33
 hm = Handle_model(db_session,model=Histstrategy33,logger=None)
 hm.update(filter='20200506300712', datas={'status':2})
 stra_updated = hm.is_updated(filter='20200507300712',baseline=dt)
@@ -43,10 +41,16 @@ s33_2 = Histstrategy33(updatetime=dt,stock=stock,uuid=dt_str1+stock,exit=4.08,bu
 hm.add_and_update_realted_mod(obj=[s33_1,s33_2])
 
 baseline = datetime.datetime.strptime('20200506150000','%Y%m%d%H%M%S')
-obj = hm.get_lastest_datas(filter,baseline)
+obj = hm.get_lastest_datas(filter,baseline,opt='lt',by_id=False,by_updatetime=True)
+for o in obj:
+    print(o.to_dict())
+print('----------')
+filter = '20200428306729'
+obj = hm.get_lastest_datas(filter,baseline,opt='eq',by_id=False,by_updatetime=False,filter_key=Histstrategy33.uuid)
 for o in obj:
     print(o.to_dict())
 
+#------------------------------------------------------Histfund
 hm.set_model(model=Histfund)
 hm.update(filter='20200428abc01', datas={'position':0.6})
 
@@ -60,7 +64,12 @@ account = 'abc58'
 fund_2 = Histfund(uuid=dt_str1+account,account=account,updatetime=dt,market=8000.0,capital=10000.0)
 hm.add_and_update_realted_mod([fund_1,fund_2])
 
+#------------------------------------------------------Orderevents
 hm.set_model(model=Orderevents)
+direction=0
+orderuuid = dt_time_str + stock + '%s'%direction
+order1 = Orderevents(uuid=orderuuid,direction=0,ordertype=0,stock=stock,price=6.8,volume=100)  #buy
+
 dt_str1 = '20200428051213'
 stock='305748'
 order1 = Orderevents(uuid=dt_str1+stock,direction=0,ordertype=0,stock=stock,price=6.8,volume=100)  #buy

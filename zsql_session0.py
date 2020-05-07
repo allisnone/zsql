@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 import datetime
-from zmodels import engine,Orderevents,Modversion,Histstrategy33,Histfund
+from zmodels import create_sessionmaker,Orderevents,Modversion,Histstrategy33,Histfund
 from sqlalchemy.orm import sessionmaker
-Session = sessionmaker(bind=engine)
-db_session = Session()
+#Session = sessionmaker(bind=engine)
+#db_session = Session()
+
+sqlite_db = 'trader.db'
+db_session = create_sessionmaker(sqlite_db)
 nt = datetime.datetime.now()
 mod_version = {'positions':[0,nt,None,None,0,1,60,10000.0,3,0.8,'15:01','002256,600345',''],
         'fund':[0,nt,None,None,0,1,60,10000.0,None,None,'15:01','',''],

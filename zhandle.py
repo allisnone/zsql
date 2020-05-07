@@ -85,7 +85,7 @@ class Basehandle:
     def update(self,filter,datas,by_id=False):
         """
         param filter: filter unique Column or key id
-        param data: dict type, update field data
+        param datas: dict type, update field data
         return: none
         """
         return
@@ -93,7 +93,7 @@ class Basehandle:
     def delete(self,filter,by_id=False):
         """
         param filter: filter unique Column or key id
-        param data: dict type, update field data
+        param datas: dict type, update field data
         return: none
         """
         return
@@ -101,7 +101,7 @@ class Basehandle:
     def is_updated(self,filter,baseline):
         """
         param filter: filter unique Column
-        param data: dict type, update field data
+        param baseline: dict type, update field data
         return: none
         """
         return
@@ -174,7 +174,8 @@ class Handle_model(Basehandle):
     def update(self,filter,datas={},by_id=False):
         """
         param filter: filter unique Column
-        param data: dict type, update field data
+        param datas: dict type, update field data
+        param by_id: bool
         return: none
         """
         try:
@@ -187,6 +188,11 @@ class Handle_model(Basehandle):
             if self.logger: self.logger.info(e)
     
     def delete(self,filter,by_id=False):
+        """
+        param filter: filter unique Column
+        param by_id: bool
+        return: none
+        """
         try:
             filter_obj = self.db_session.query(self.model).filter(self.model.uuid==filter).delete()
             self.db_session.commit()
@@ -194,7 +200,13 @@ class Handle_model(Basehandle):
             if self.logger: self.logger.info(e)
         return
     
-    def is_updated(self,filter,baseline):
+    def is_updated(self,filter,baseline,by_id=False):
+        """
+        param filter: filter unique Column
+        param baseline: dict type, update field data
+        param by_id: bool
+        return: none
+        """
         try:
             filter_obj = self.db_session.query(self.model).filter(self.model.uuid==filter).first()
             return filter_obj.updatetime>=baseline
@@ -202,11 +214,42 @@ class Handle_model(Basehandle):
             if self.logger: self.logger.info(e)
         return
     
-    def get_lastest_datas(self,filter,baseline):
+    def get_lastest_datas(self,filter,baseline,opt='gte',by_id=False,by_updatetime=True,filter_key=None):
+        """
+        param filter: filter value by unique Column
+        param baseline: datetime type, use for filter data by time
+        param opt: str type, use for filter data by time
+        param by_id: bool type, default: False
+        param by_updatetime: bool type, default: True
+        param filter_key, Column object, like Histstrategy33.uuid
+        return: none
+        """
         try:
             #filter_obj = self.db_session.query(self.model).filter(self.model.uuid>=filter).first()
-            filter_obj = self.db_session.query(self.model).filter(self.model.updatetime>=baseline)
+            filter_obj = None
+            if by_updatetime:
+                if opt=='gt':
+                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime>baseline)
+                elif opt=='gte':
+                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime>=baseline)
+                elif opt=='eq':
+                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime==baseline)
+                else:#lt
+                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime<baseline)
+            else:#by uuid or by id
+                #key = self.model.uuid  #or others
+                if by_id:
+                    filter_key = self.model.id
+                if opt=='gt':
+                    filter_obj = self.db_session.query(self.model).filter(filter_key>filter)
+                elif opt=='gte':
+                    filter_obj = self.db_session.query(self.model).filter(filter_key>=filter)
+                elif opt=='eq':
+                    filter_obj = self.db_session.query(self.model).filter(filter_key==filter)
+                else:#lt
+                    filter_obj = self.db_session.query(self.model).filter(filter_key<filter)
             return filter_obj
+                
         except Exception as e:
             if self.logger: self.logger.info(e)
         return None
