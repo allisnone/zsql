@@ -214,7 +214,7 @@ class Handle_model(Basehandle):
             if self.logger: self.logger.info(e)
         return
     
-    def get_lastest_datas(self,filter,baseline,opt='gte',by_id=False,by_updatetime=True,filter_key=None):
+    def get_filter_objects(self,filter,baseline,opt='gte',by_id=False,by_updatetime=True,filter_key=None):
         """
         param filter: filter value by unique Column
         param baseline: datetime type, use for filter data by time
@@ -248,8 +248,7 @@ class Handle_model(Basehandle):
                     filter_obj = self.db_session.query(self.model).filter(filter_key==filter)
                 else:#lt
                     filter_obj = self.db_session.query(self.model).filter(filter_key<filter)
-            return filter_obj
-                
+            return filter_obj  
         except Exception as e:
             if self.logger: self.logger.info(e)
         return None

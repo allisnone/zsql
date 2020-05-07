@@ -41,12 +41,12 @@ s33_2 = Histstrategy33(updatetime=dt,stock=stock,uuid=dt_str1+stock,exit=4.08,bu
 hm.add_and_update_realted_mod(obj=[s33_1,s33_2])
 
 baseline = datetime.datetime.strptime('20200506150000','%Y%m%d%H%M%S')
-obj = hm.get_lastest_datas(filter,baseline,opt='lt',by_id=False,by_updatetime=True)
+obj = hm.get_filter_objects(filter,baseline,opt='lt',by_id=False,by_updatetime=True)
 for o in obj:
     print(o.to_dict())
 print('----------')
 filter = '20200428306729'
-obj = hm.get_lastest_datas(filter,baseline,opt='eq',by_id=False,by_updatetime=False,filter_key=Histstrategy33.uuid)
+obj = hm.get_filter_objects(filter,baseline,opt='eq',by_id=False,by_updatetime=False,filter_key=Histstrategy33.uuid)
 for o in obj:
     print(o.to_dict())
 
