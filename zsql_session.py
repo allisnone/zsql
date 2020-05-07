@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 import datetime
-from zmodels import engine,Orderevents,Modversion,Histstrategy33,Histfund
-from sqlalchemy.orm import sessionmaker
+from zmodels import create_sessionmaker,Orderevents,Modversion,Histstrategy33,Histfund
 from zhandle import init_modversion,Handle_modversion,Handle_model
-Session = sessionmaker(bind=engine)
-db_session = Session()
 
+sqlite_db = 'trader.db'
+db_session = create_sessionmaker(sqlite_db)
 nt = datetime.datetime.now()
 #modversion
 #init_modversion(db_session)
@@ -33,15 +32,20 @@ order1 = Orderevents(uuid=orderuuid,direction=0,ordertype=0,stock=stock,price=6.
 
 hm = Handle_model(db_session,model=Histstrategy33,logger=None)
 hm.update(filter='20200506300712', datas={'status':2})
-stra_updated = hm.is_updated(filter='20200506600237',baseline=dt)
+stra_updated = hm.is_updated(filter='20200507300712',baseline=dt)
 print('stra_updated=',stra_updated)
 
 dt_str1 = '20200428'
-stock='306729'
+stock='305729'
 s33_1 = Histstrategy33(updatetime=dt,stock=stock,uuid=dt_str1+stock,exit=4.08,buy=4.22,stop=4.76,trying=3.56)
-stock='306730'
+stock='305730'
 s33_2 = Histstrategy33(updatetime=dt,stock=stock,uuid=dt_str1+stock,exit=4.08,buy=4.22,stop=4.76,trying=3.56)
 hm.add_and_update_realted_mod(obj=[s33_1,s33_2])
+
+baseline = datetime.datetime.strptime('20200506150000','%Y%m%d%H%M%S')
+obj = hm.get_lastest_datas(filter,baseline)
+for o in obj:
+    print(o.to_dict())
 
 hm.set_model(model=Histfund)
 hm.update(filter='20200428abc01', datas={'position':0.6})
@@ -49,19 +53,22 @@ hm.update(filter='20200428abc01', datas={'position':0.6})
 fund_updated = hm.is_updated(filter='20200428abc01',baseline=dt)
 print('fund_updated=',fund_updated)
 
-account = 'abc67'
+account = 'abc57'
 dt = datetime.datetime.strptime('20200428','%Y%m%d')
 fund_1 = Histfund(uuid=dt_str1+account,account=account,updatetime=dt,market=8000.0,capital=10000.0)
-account = 'abc68'
+account = 'abc58'
 fund_2 = Histfund(uuid=dt_str1+account,account=account,updatetime=dt,market=8000.0,capital=10000.0)
 hm.add_and_update_realted_mod([fund_1,fund_2])
 
 hm.set_model(model=Orderevents)
 dt_str1 = '20200428051213'
-stock='306748'
+stock='305748'
 order1 = Orderevents(uuid=dt_str1+stock,direction=0,ordertype=0,stock=stock,price=6.8,volume=100)  #buy
-stock='306749'
+stock='305749'
 order2 = Orderevents(uuid=dt_str1+stock,direction=0,ordertype=0,stock=stock,price=6.8,volume=100) 
 hm.add_and_update_realted_mod([order1,order2])
+
+
+db_session.close()
 
  

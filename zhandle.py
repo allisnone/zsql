@@ -172,6 +172,11 @@ class Handle_model(Basehandle):
         return
     
     def update(self,filter,datas={},by_id=False):
+        """
+        param filter: filter unique Column
+        param data: dict type, update field data
+        return: none
+        """
         try:
             filter_obj = self.db_session.query(self.model).filter(self.model.uuid==filter)
             #print(this_mod.first().version)
@@ -196,3 +201,13 @@ class Handle_model(Basehandle):
         except Exception as e:
             if self.logger: self.logger.info(e)
         return
+    
+    def get_lastest_datas(self,filter,baseline):
+        try:
+            #filter_obj = self.db_session.query(self.model).filter(self.model.uuid>=filter).first()
+            filter_obj = self.db_session.query(self.model).filter(self.model.updatetime>=baseline)
+            return filter_obj
+        except Exception as e:
+            if self.logger: self.logger.info(e)
+        return None
+        

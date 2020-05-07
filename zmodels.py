@@ -3,11 +3,29 @@
 #allisnone on 20200505
 import datetime
 from sqlalchemy import create_engine 
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column,Integer,String,Boolean,Float,DateTime,PrimaryKeyConstraint
 
 
 Base = declarative_base()
+
+def create_sessionmaker(db='trader.db'):
+    """
+    param db: db name
+    return: obj of sessionmaker 
+    """
+    engine = create_engine('sqlite:///' + db + '?check_same_thread=False', echo=False)
+    Base.metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
+    return Session()
+
+"""
+class ZBase(Base):
+    __tablename__ = 'zbase'
+    def to_dict(self):
+        return {c.name: getattr(self, c.name, None) for c in self.__table__.columns}
+"""
 class Modversion(Base):
     """use for mod maintenance"""
     __tablename__ = 'modversion'
@@ -27,7 +45,8 @@ class Modversion(Base):
     nexttime = Column(DateTime, default=None) #next update time
     comment = Column(String(32),default='')
     #columns=['starttime','endtime', 'nexttime', 'status', 'valid','interval','value','count','max','update_time','comment']
-    
+    def to_dict(self):
+        return {c.name: getattr(self, c.name, None) for c in self.__table__.columns}
 
 class Orderevents(Base):
     """use for strategory ordering and trading"""
@@ -52,6 +71,9 @@ class Orderevents(Base):
     endtime = Column(DateTime,default=datetime.datetime.strptime(datetime.datetime.now().strftime('%Y%m%d')+'145959','%Y%m%d%H%M%S'))
     updatetime = Column(DateTime, default=datetime.datetime.now()) #datetime.datetime.utcnow()
     comment = Column(String(32),default='')
+    def to_dict(self):
+        return {c.name: getattr(self, c.name, None) for c in self.__table__.columns}
+
 
 class Histfund(Base):
     """use for recording position and fund"""
@@ -64,6 +86,8 @@ class Histfund(Base):
     cash = Column(Float, default=0)
     position = Column(Float, default=None)
     updatetime = Column(DateTime, default=datetime.datetime.now())
+    def to_dict(self):
+        return {c.name: getattr(self, c.name, None) for c in self.__table__.columns}
     """
     def __repr__(self):
         return "<Histfund(account='%s', updatetime='%s', market='%s', capital='%s', cash='%s', position='%s')>" % (self.account, self.updatetime, self.market, self.capital,self.cash,self.position)
@@ -85,6 +109,8 @@ class Histstrategy33(Base):
     ttarget = Column(Float, default=100.0)
     success = Column(Boolean,default=False)
     updatetime = Column(DateTime, default=datetime.datetime.now())
+    def to_dict(self):
+        return {c.name: getattr(self, c.name, None) for c in self.__table__.columns}
     """"
     #sqlite not support
     __table_args__ = (
@@ -92,8 +118,9 @@ class Histstrategy33(Base):
         {},
     )
     """
-sqlite_db = 'trader.db'
-engine = create_engine('sqlite:///' + sqlite_db + '?check_same_thread=False', echo=False)
-Base.metadata.create_all(engine)
+
+
+
+
 
     
