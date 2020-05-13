@@ -219,42 +219,73 @@ class Handle_model(Basehandle):
             if self.logger: self.logger.info(e)
         return
     
-    def get_filter_objects(self,filter,baseline,opt='gte',by_id=False,by_updatetime=True,filter_key=None):
+    def get_filter_objects(self,filter=None,basetime=None,opt='gte',by_id=False,by_updatetime=False,filter_column=None):
         """
         param filter: filter value by unique Column
-        param baseline: datetime type, use for filter data by time
+        param basetime: datetime type, use for filter data by time
         param opt: str type, use for filter data by time
         param by_id: bool type, default: False
-        param by_updatetime: bool type, default: True
-        param filter_key, Column object, like Histstrategy33.uuid
-        return: none
+        param by_updatetime: bool type, default: False
+        param filter_column, Column object, like Histstrategy33.uuid
+        return: sqlalchemy.orm.query.Query or None
         """
         try:
             #filter_obj = self.db_session.query(self.model).filter(self.model.uuid>=filter).first()
             filter_obj = None
             if by_updatetime:
                 if opt=='gt':
-                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime>baseline)
+                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime>basetime)
                 elif opt=='gte':
-                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime>=baseline)
+                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime>=basetime)
                 elif opt=='eq':
-                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime==baseline)
+                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime==basetime)
                 else:#lt
-                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime<baseline)
+                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime<basetime)
             else:#by uuid or by id
                 #key = self.model.uuid  #or others
                 if by_id:
-                    filter_key = self.model.id
+                    filter_column = self.model.id
                 if opt=='gt':
-                    filter_obj = self.db_session.query(self.model).filter(filter_key>filter)
+                    filter_obj = self.db_session.query(self.model).filter(filter_column>filter)
                 elif opt=='gte':
-                    filter_obj = self.db_session.query(self.model).filter(filter_key>=filter)
+                    filter_obj = self.db_session.query(self.model).filter(filter_column>=filter)
                 elif opt=='eq':
-                    filter_obj = self.db_session.query(self.model).filter(filter_key==filter)
+                    filter_obj = self.db_session.query(self.model).filter(filter_column==filter)
                 else:#lt
-                    filter_obj = self.db_session.query(self.model).filter(filter_key<filter)
+                    filter_obj = self.db_session.query(self.model).filter(filter_column<filter)
             return filter_obj  
         except Exception as e:
             if self.logger: self.logger.info(e)
         return None
+    
+    #filter by updatettime
+    def get_filter_objects_by_updatetime(self,basetime,opt='gte'):
+        """
+        param basetime: datetime type, use for filter data by time
+        param opt: str type, use for filter data by time
+        return: sqlalchemy.orm.query.Query or None
+        """
+        return self.get_filter_objects(basetime=basetime,opt=opt,by_updatetime=True)
+    
+    #filter by table column
+    def get_filter_objects_by_column(self,filter,column,opt='eq'):
+        """
+        param filter: filter value by unique Column
+        param column, Column object, like Histstrategy33.uuid
+        param opt: str type, use for filter data by time
+        return: sqlalchemy.orm.query.Query or None
+        """
+        #get_filter_objects_by_column(self,filter='304749',column=Orderevents.code,opt='eq')
+        #get_filter_objects_by_column(self,filter='20200428051213305748',column=Orderevents.uuid,opt='eq')
+        return self.get_filter_objects(filter=filter,opt=opt,filter_column=column)
+    
+    #filter by id
+    def get_filter_objects_by_id(self,id,opt='eq'):
+        """
+        param id: int
+        param opt: str type, use for filter data by time
+        return: sqlalchemy.orm.query.Query or None
+        """
+        return self.get_filter_objects(filter=id,opt=opt,by_id=True)
+    
         

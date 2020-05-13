@@ -77,7 +77,51 @@ code='304749'
 order2 = Orderevents(uuid=dt_str1+code,direction=0,ordertype=0,code=code,price=6.8,volume=100) 
 hm.add_table_objects([order1,order2])
 
+code = '304748'
+filter = None
+basetime = dt
+opt='gte'
+by_id=False
+by_updatetime=True
 
+#filter by update time
+dt = datetime.datetime.strptime('20200513211155','%Y%m%d%H%M%S')
+objs = hm.get_filter_objects(basetime=dt,opt='gte',by_updatetime=True)
+i = 0 
+for obj in objs:
+    print('by_time_',i)
+    print(obj.to_dict())
+    i = i + 1
+print('objs=',objs)
+
+#filter by object columns
+objs = hm.get_filter_objects(filter='304749',opt='eq',filter_key=Orderevents.code)
+i = 0 
+for obj in objs:
+    print('by_code_',i)
+    print(obj.to_dict())
+    i = i + 1
+print('objs=',type(objs),objs)
+
+#filter by uuid
+uuid = '20200428051213304749'
+objs = hm.get_filter_objects(filter=uuid,opt='eq',filter_key=Orderevents.uuid)
+i = 0 
+for obj in objs:
+    print('by_uuid_',i)
+    print(obj.to_dict())
+    i = i + 1
+print('objs=',type(objs),objs)
+
+id = 3
+#filter by id
+objs = hm.get_filter_objects(filter=id,opt='eq',by_id=True)
+i = 0 
+for obj in objs:
+    print('by_id_',i)
+    print(obj.to_dict())
+    i = i + 1
+    
 db_session.close()
 
  
