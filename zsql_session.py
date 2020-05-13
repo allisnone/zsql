@@ -115,7 +115,7 @@ print('objs=',type(objs),objs)
 
 id = 3
 #filter by id
-objs = hm.get_filter_objects(filter=id,opt='eq',by_id=True)
+objs = hm.get_filter_objects_by_id(filter=id,opt='eq')
 i = 0 
 for obj in objs:
     print('by_id_',i)
