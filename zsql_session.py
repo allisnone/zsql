@@ -46,7 +46,7 @@ for o in obj:
     print(o.to_dict())
 print('----------')
 filter = '20200428306729'
-obj = hm.get_filter_objects(filter,baseline,opt='eq',by_id=False,by_updatetime=False,filter_key=Histstrategy33.uuid)
+obj = hm.get_filter_objects(filter,baseline,opt='eq',by_id=False,by_updatetime=False,filter_column=Histstrategy33.uuid)
 for o in obj:
     print(o.to_dict())
 
@@ -95,7 +95,7 @@ for obj in objs:
 print('objs=',objs)
 
 #filter by object columns
-objs = hm.get_filter_objects(filter='304749',opt='eq',filter_key=Orderevents.code)
+objs = hm.get_filter_objects(filter='304749',opt='eq',filter_column=Orderevents.code)
 i = 0 
 for obj in objs:
     print('by_code_',i)
@@ -105,7 +105,7 @@ print('objs=',type(objs),objs)
 
 #filter by uuid
 uuid = '20200428051213304749'
-objs = hm.get_filter_objects(filter=uuid,opt='eq',filter_key=Orderevents.uuid)
+objs = hm.get_filter_objects(filter=uuid,opt='eq',filter_column=Orderevents.uuid)
 i = 0 
 for obj in objs:
     print('by_uuid_',i)
@@ -115,7 +115,7 @@ print('objs=',type(objs),objs)
 
 id = 3
 #filter by id
-objs = hm.get_filter_objects_by_id(filter=id,opt='eq')
+objs = hm.get_filter_objects_by_id(id=id,opt='eq')
 i = 0 
 for obj in objs:
     print('by_id_',i)

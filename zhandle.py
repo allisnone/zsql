@@ -58,10 +58,14 @@ def init_modversion(db_session):
 
 class Basehandle:
     """db base handle method """
-    def __init__(self,db_session,logger=None):
+    def __init__(self,db_session,model=None,logger=None):
         self.db_session = db_session
         self.logger = logger
+        self.model = model
         
+    def set_model(self,model):
+        self.model = model   
+            
     def add(self,obj):
         """
         param obj: table object
@@ -98,13 +102,69 @@ class Basehandle:
         """
         return
     
-    def is_updated(self,filter,baseline):
+    def set_filter_column(self,column):
         """
-        param filter: filter unique Column
-        param baseline: dict type, update field data
+        param column:  Column type, like Histstrategy33.uuid
         return: none
         """
-        return
+        self.filer_column = column 
+    
+    def _is_updated(self,filter,baseline,by_id=False,by_uuid=False):
+        """
+        param filter: filter value for unique Column
+        param baseline: dict type, update field data
+        param by_id: bool
+        return: Bool or None
+        """
+        if by_id:
+            self.set_filter_column(self.model.id)
+        if by_uuid:
+            self.set_filter_column(self.model.uuid)
+        try:
+            filter_obj = self.db_session.query(self.model).filter(self.filer_column==filter).first()
+            return filter_obj.updatetime>=baseline
+        except Exception as e:
+            if self.logger: self.logger.info(e)
+        return None
+    
+    def get_filter_objects(self,filter=None,basetime=None,opt='gte',by_id=False,by_updatetime=False,filter_column=None):
+        """
+        param filter: filter value by unique Column
+        param basetime: datetime type, use for filter data by time
+        param opt: str type, use for filter data by time
+        param by_id: bool type, default: False
+        param by_updatetime: bool type, default: False
+        param filter_column, Column object, like Histstrategy33.uuid
+        return: sqlalchemy.orm.query.Query or None
+        """
+        try:
+            #filter_obj = self.db_session.query(self.model).filter(self.model.uuid>=filter).first()
+            filter_obj = None
+            if by_updatetime:
+                if opt=='gt':
+                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime>basetime)
+                elif opt=='gte':
+                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime>=basetime)
+                elif opt=='eq':
+                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime==basetime)
+                else:#lt
+                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime<basetime)
+            else:#by uuid or by id
+                #key = self.model.uuid  #or others
+                if by_id:
+                    filter_column = self.model.id
+                if opt=='gt':
+                    filter_obj = self.db_session.query(self.model).filter(filter_column>filter)
+                elif opt=='gte':
+                    filter_obj = self.db_session.query(self.model).filter(filter_column>=filter)
+                elif opt=='eq':
+                    filter_obj = self.db_session.query(self.model).filter(filter_column==filter)
+                else:#lt
+                    filter_obj = self.db_session.query(self.model).filter(filter_column<filter)
+            return filter_obj  
+        except Exception as e:
+            if self.logger: self.logger.info(e)
+        return None
     
     def close(self):
         self.db_session.close()
@@ -114,34 +174,48 @@ class Handle_modversion(Basehandle):
     """handle method for modversion"""
     def __init__(self,db_session,logger=None):
         super(Handle_modversion,self).__init__(db_session,logger)
+        self.model = Modversion
 
-    def update(self,filter,datas={}):
+    def update(self,filter,datas):
+        """
+        param filter: str, mod name
+        param datas: dict type, update field data
+        return: none
+        """
         try:
-            filter_obj = self.db_session.query(Modversion).filter(Modversion.mod==filter)
+            filter_obj = self.db_session.query(self.model).filter(self.model.mod==filter)
             #print(this_mod.first().version)
             datas['version'] = filter_obj.first().version + 1
             filter_obj.update(datas)
             self.db_session.commit()
+            return True
         except Exception as e:
             self.db_session.rollback()
             if self.logger: self.logger.info(e)
             else: print(e)
+        return False
     
-    def delete(self,filter):
+    def delete(self,filter): #delete filter by mod
+        """
+        param filter: str, mod name
+        return: none
+        """
         try:
-            filter_obj = self.db_session.query(Modversion).filter(Modversion.mod==filter).delete()
+            filter_obj = self.db_session.query(self.model).filter(self.model.mod==filter).delete()
             self.db_session.commit()
+            return True
         except Exception as e:
             if self.logger: self.logger.info(e)
-        return
+        return False
     
     def is_updated(self,filter,baseline):
-        try:
-            filter_obj = self.db_session.query(Modversion).filter(Modversion.mod==filter).first()
-            return filter_obj.updatetime>=baseline
-        except Exception as e:
-            if self.logger: self.logger.info(e)
-        return
+        """
+        param filter: filter value for unique Column
+        param baseline: dict type, update field data
+        return: Bool or None
+        """
+        self.set_filter_column(self.model.mod)
+        return self._is_updated(filter, baseline)
 
 class Handle_model(Basehandle):
     """
@@ -149,9 +223,6 @@ class Handle_model(Basehandle):
     """
     def __init__(self,db_session,model,logger=None):
         super(Handle_model,self).__init__(db_session,logger)
-        self.model = model
-    
-    def set_model(self,model):
         self.model = model
         
     def add_table_objects(self,obj):
@@ -205,58 +276,17 @@ class Handle_model(Basehandle):
             if self.logger: self.logger.info(e)
         return
     
-    def is_updated(self,filter,baseline,by_id=False):
+    def is_updated(self,filter,baseline,by_id=False,by_uuid=False):
         """
-        param filter: filter unique Column
+        param filter: filter value for unique Column
         param baseline: dict type, update field data
         param by_id: bool
-        return: none
+        param by_uuid: bool
+        return: Bool or None
         """
-        try:
-            filter_obj = self.db_session.query(self.model).filter(self.model.uuid==filter).first()
-            return filter_obj.updatetime>=baseline
-        except Exception as e:
-            if self.logger: self.logger.info(e)
-        return
-    
-    def get_filter_objects(self,filter=None,basetime=None,opt='gte',by_id=False,by_updatetime=False,filter_column=None):
-        """
-        param filter: filter value by unique Column
-        param basetime: datetime type, use for filter data by time
-        param opt: str type, use for filter data by time
-        param by_id: bool type, default: False
-        param by_updatetime: bool type, default: False
-        param filter_column, Column object, like Histstrategy33.uuid
-        return: sqlalchemy.orm.query.Query or None
-        """
-        try:
-            #filter_obj = self.db_session.query(self.model).filter(self.model.uuid>=filter).first()
-            filter_obj = None
-            if by_updatetime:
-                if opt=='gt':
-                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime>basetime)
-                elif opt=='gte':
-                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime>=basetime)
-                elif opt=='eq':
-                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime==basetime)
-                else:#lt
-                    filter_obj = self.db_session.query(self.model).filter(self.model.updatetime<basetime)
-            else:#by uuid or by id
-                #key = self.model.uuid  #or others
-                if by_id:
-                    filter_column = self.model.id
-                if opt=='gt':
-                    filter_obj = self.db_session.query(self.model).filter(filter_column>filter)
-                elif opt=='gte':
-                    filter_obj = self.db_session.query(self.model).filter(filter_column>=filter)
-                elif opt=='eq':
-                    filter_obj = self.db_session.query(self.model).filter(filter_column==filter)
-                else:#lt
-                    filter_obj = self.db_session.query(self.model).filter(filter_column<filter)
-            return filter_obj  
-        except Exception as e:
-            if self.logger: self.logger.info(e)
-        return None
+        #to do
+        #self.set_filter_column(column=self.model.uuid)
+        return self._is_updated(filter, baseline, by_id, by_uuid)
     
     #filter by updatettime
     def get_filter_objects_by_updatetime(self,basetime,opt='gte'):
