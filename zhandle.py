@@ -10,8 +10,8 @@ def init_modversion(db_session):
     #datetime.datetime.strptime(datetime.datetime.now().strftime('%Y%m%d')+'145959','%Y%m%d%H%M%S')
     capital = 10000.0
     market = 8000.0
-    position_stocks = ['300195','300716','600237']
-    index_stocks = ['600519','601318']
+    position_s = ['300195','300716','600237']
+    index_s = ['600519','601318']
     starttime = '9:25'
     endtime = '15:01'
     kdatetime = '16:00'
@@ -24,7 +24,7 @@ def init_modversion(db_session):
         value = 0
         fixedtime = None
         if mod in ['positions','fund','strategy33']:
-            related = ','.join(position_stocks)
+            related = ','.join(position_s)
             value = capital
             fixedtime = endtime
         elif mod in ['kdata','backtest','report','potential']:
@@ -42,7 +42,7 @@ def init_modversion(db_session):
             fixedtime = postclosetime
             value = capital - market
         elif mod=='dapan':
-            related = ','.join(index_stocks)
+            related = ','.join(index_s)
             fixedtime = kdatetime
         else:
             pass
@@ -154,7 +154,11 @@ class Handle_model(Basehandle):
     def set_model(self,model):
         self.model = model
         
-    def add_and_update_realted_mod(self,obj):
+    def add_table_objects(self,obj):
+        """
+        param obj: object from Class: Base = declarative_base()
+        return: none
+        """
         add_num = self.add(obj)
         if add_num>0:# update mod updatetime
             h = Handle_modversion(self.db_session,self.logger)
@@ -164,6 +168,7 @@ class Handle_model(Basehandle):
                 h.update(filter='fund', datas={'updatetime':datetime.datetime.now()}) 
             elif self.model.__tablename__=='orderevents':
                 h.update(filter='order', datas={'updatetime':datetime.datetime.now()}) 
+            #should add more, if more models
             else:
                 if self.logger: self.logger.info('add_and_update_realted_mod-added {0} rows for table={1} with mod update'.format(add_num,self.model.__tablename__))
         else:

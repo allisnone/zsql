@@ -39,7 +39,7 @@ class Modversion(Base):
     count = Column(Integer,default=3)
     max = Column(Float,default=0.8)  #if position, the max position rate
     fixtime =  Column(String(10), default=None) #fixed time to update data every date
-    related = Column(String(256),default='') #related stocks 
+    related = Column(String(256),default='') #related codes 
     updatetime = Column(DateTime, default=datetime.datetime.now())
     endtime = Column(DateTime, default=None)
     nexttime = Column(DateTime, default=None) #next update time
@@ -52,11 +52,11 @@ class Orderevents(Base):
     """use for strategory ordering and trading"""
     __tablename__ = 'orderevents'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    uuid = Column(String(32),unique=True)  ## updatetime + stock
+    uuid = Column(String(32),unique=True)  ## updatetime + code
     #orderevent = Column(String(32))#,index=True)
     direction = Column(Integer,default=0) #0-buy, 1-sell
     ordertype = Column(Integer,default=0) #0-limit price
-    stock = Column(String(6))
+    code = Column(String(6))
     price = Column(Float)
     volume = Column(Integer)
     valid = Column(Boolean,default=True) #1-valid, 0-invalid
@@ -98,8 +98,8 @@ class Histstrategy33(Base):
     __tablename__ = 'histstrategy33'
     id = Column(Integer, primary_key=True, autoincrement=True)
     #updatetime = Column(DateTime, default=datetime.datetime.now().date())
-    uuid = Column(String(16),unique=True)  # updatetime + stock
-    stock = Column(String(6),nullable=False)
+    uuid = Column(String(16),unique=True)  # updatetime + code
+    code = Column(String(6),nullable=False)
     exit = Column(Float, nullable=False)
     buy = Column(Float, nullable=False)
     stop = Column(Float, default=-1) #stop profit, sell in high price, sell then buy in 0-3 dates;-1-disable
@@ -114,7 +114,7 @@ class Histstrategy33(Base):
     """"
     #sqlite not support
     __table_args__ = (
-        PrimaryKeyConstraint('updatetime', 'stock'),
+        PrimaryKeyConstraint('updatetime', 'code'),
         {},
     )
     """

@@ -34,8 +34,8 @@ def init_modversion(db_session):
     #datetime.datetime.strptime(datetime.datetime.now().strftime('%Y%m%d')+'145959','%Y%m%d%H%M%S')
     capital = 10000.0
     market = 8000.0
-    position_stocks = ['300195','300716','600237']
-    index_stocks = ['600519','601318']
+    position_codes = ['300195','300716','600237']
+    index_codes = ['600519','601318']
     starttime = '9:25'
     endtime = '15:01'
     kdatetime = '16:00'
@@ -48,7 +48,7 @@ def init_modversion(db_session):
         value = 0
         fixedtime = None
         if mod in ['positions','fund','strategy33']:
-            related = ','.join(position_stocks)
+            related = ','.join(position_codes)
             value = capital
             fixedtime = endtime
         elif mod in ['kdata','backtest','report','potential']:
@@ -66,7 +66,7 @@ def init_modversion(db_session):
             fixedtime = postclosetime
             value = capital - market
         elif mod=='dapan':
-            related = ','.join(index_stocks)
+            related = ','.join(index_codes)
             fixedtime = kdatetime
         else:
             pass
@@ -109,14 +109,14 @@ class Handling_modversion:
 dt = datetime.datetime.now()
 dt_str = dt.strftime('%Y%m%d')
 dt_time_str = dt.strftime('%Y%m%d%H%M%S')
-stock='600123'
+code='600123'
 direction=0
-orderuuid = dt_time_str + stock + '%s'%direction
-order1 = Orderevents(uuid=orderuuid,direction=0,ordertype=0,stock=stock,price=6.8,volume=100)  #buy
-stock='600124'
+orderuuid = dt_time_str + code + '%s'%direction
+order1 = Orderevents(uuid=orderuuid,direction=0,ordertype=0,code=code,price=6.8,volume=100)  #buy
+code='600124'
 direction=1
-orderuuid = dt_time_str + stock + '%s'%direction
-order2 = Orderevents(uuid=orderuuid,direction=direction,ordertype=0,stock=stock,price=9.8,volume=200) #sell
+orderuuid = dt_time_str + code + '%s'%direction
+order2 = Orderevents(uuid=orderuuid,direction=direction,ordertype=0,code=code,price=9.8,volume=200) #sell
 try:
     db_session.add(order1)
     db_session.add(order2)
@@ -128,10 +128,10 @@ except Exception as e:
 
 #histstrategy33
 
-stock='300712'
-s33_1 = Histstrategy33(updatetime=dt,stock='300712',uuid=dt_str+stock,exit=4.08,buy=4.22,stop=4.76,trying=3.56)
-stock='600237'
-s33_2 = Histstrategy33(updatetime=dt,stock='300712',uuid=dt_str+stock,exit=3.50,buy=3.82,stop=4.25,trying=3.59)
+code='300712'
+s33_1 = Histstrategy33(updatetime=dt,code='300712',uuid=dt_str+code,exit=4.08,buy=4.22,stop=4.76,trying=3.56)
+code='600237'
+s33_2 = Histstrategy33(updatetime=dt,code='300712',uuid=dt_str+code,exit=3.50,buy=3.82,stop=4.25,trying=3.59)
 try:
     db_session.add(s33_1)
     db_session.add(s33_2)
@@ -158,7 +158,7 @@ except Exception as e:
 #update sql data
 event = db_session.query(Orderevents).filter(Orderevents.id > 2).first()
 res = db_session.query(Orderevents).filter(Orderevents.id==1).update({"status":1})
-#print(event.id, event.stock,event.volume)
+#print(event.id, event.code,event.volume)
 res = db_session.query(Orderevents).filter(Orderevents.id==2).update({"volume":400,'valid':False})
 print(res) # 1 res就是我们当前这句更新语句所更新的行数
 
@@ -168,30 +168,30 @@ db_session.commit()
 event_all_list = db_session.query(Orderevents).filter(Orderevents.id >= 2).all()
 print(event_all_list)
 for i in event_all_list:
-    print(i.id, i.stock)
+    print(i.id, i.code)
 
 event = db_session.query(Orderevents).filter(Orderevents.id >= 3).first()
-#print(event.id, event.stock)
+#print(event.id, event.code)
 
 #delete:
 db_session.query(Orderevents).filter(Orderevents.id == 1001).delete()
 
 #order:
-std_ord_desc = db_session.query(Orderevents).filter(Orderevents.stock.like("%600%")).order_by(Orderevents.stock.desc()).all()
+std_ord_desc = db_session.query(Orderevents).filter(Orderevents.code.like("%600%")).order_by(Orderevents.code.desc()).all()
 for i in std_ord_desc:
   print(i.id)
 
 
 #bool
 event = db_session.query(Orderevents).filter(Orderevents.valid == False).first()
-print(event.id, event.stock)
+print(event.id, event.code)
 
 #datetime
 filter_time = datetime.datetime.strptime('20200505113720','%Y%m%d%H%M%S')
 event = db_session.query(Orderevents).filter(Orderevents.updatetime >= filter_time).all()
 print(event)
 event = db_session.query(Orderevents).filter(Orderevents.updatetime >= filter_time).first()
-print(event.id, event.stock,event.updatetime)
+print(event.id, event.code,event.updatetime)
 
 db_session.close()
 
