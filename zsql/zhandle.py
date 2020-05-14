@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 #allisnone on 20200505
 import datetime
-from zmodels import Modversion
+from zsql.zmodel import Modversion
 
 def init_modversion(db_session):
     version = 0

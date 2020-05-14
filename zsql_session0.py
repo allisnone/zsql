@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 import datetime
-from zmodels import create_sessionmaker,Orderevents,Modversion,Histstrategy33,Histfund
+from zsql.zmodel import create_sessionmaker,Orderevents,Modversion,Histstrategy33,Histfund
 from sqlalchemy.orm import sessionmaker
 #Session = sessionmaker(bind=engine)
 #db_session = Session()
