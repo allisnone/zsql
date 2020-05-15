@@ -119,6 +119,23 @@ class Histstrategy33(Base):
     )
     """
 
+class Exceptworkingdate(Base):
+    """use for recording Exceptworkingdate"""
+    __tablename__ = 'exceptworkingdate'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    #updatetime = Column(DateTime, default=datetime.datetime.now().date())
+    wdate = Column(String(16),unique=True,nullable=False)  # workingdate
+    status = Column(Integer,default=-1) #0-buyed, 1-exited,2-stop,3-trying,-1-holding/unchanged
+    updatetime = Column(DateTime, default=datetime.datetime.now())
+    def to_dict(self):
+        return {c.name: getattr(self, c.name, None) for c in self.__table__.columns}
+    """"
+    #sqlite not support
+    __table_args__ = (
+        PrimaryKeyConstraint('updatetime', 'code'),
+        {},
+    )
+    """
 
 
 
