@@ -14,12 +14,13 @@ Base = declarative_base()
 class table_class(Base):
     __tablename__ = 'aaa'
     id=Column(Integer,primary_key=True)
+    appid=Column('应用1', String(50))
 
 
 # 动态添加字段
 for i in range(3):
     setattr(table_class,'Col'+str(i),(Column('Col'+str(i), String(50))))
-setattr(table_class,'Col3',(Column('Col3', String(50))))
+setattr(table_class,'mobile',(Column('手机', String(50))))
 Base.metadata.create_all(engine)
 
 # 添加数据
@@ -30,6 +31,6 @@ session.close_all()
 
 #如果有添加或者改变原表字段时，需要删除原有的数据表格
 #Base.metadata.create_all(engine)
-dt=table_class(Col1='aa3',Col2="aa3",Col3="ac3")
+dt=table_class(Col1='aa3',Col2="aa3",mobile="ac3")
 session.add(dt)
 session.commit()
